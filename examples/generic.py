@@ -287,7 +287,7 @@ class ThreeDsinusoidalParametricAnimation(ThreeDimensionalParametricAnimation):
         )  # Generate z values based on the hyperbolic tangent of tx
 
 
-if __name__ == "__main__":
+def test_show_animations():
 
     print("Example 1/4: CustomImageAnimation")
     liss = CustomImageAnimation(10)
@@ -304,3 +304,42 @@ if __name__ == "__main__":
     print("Example 4/4: ThreeDsinusoidalParametricAnimation")
     liss = ThreeDsinusoidalParametricAnimation(100)
     liss.show(x_range=(-1, 1), y_range=(-1, 1), z_range=(-1, 1))
+
+
+def test_save_animations():
+
+    OUTPUT_PATH = Path("output")
+    OUTPUT_PATH.mkdir(exist_ok=True)
+
+    print("Example 1/4: CustomImageAnimation")
+    liss = CustomImageAnimation(10)
+    liss.save(OUTPUT_PATH / "ex1.gif", writer="imagemagick")
+    liss.save(OUTPUT_PATH / "ex1-frames-default" / "frame_%03d.jpg")
+
+    print("Example 2/4: SinusoidalImageAnimation")
+    liss = SinusoidalImageAnimation(100)
+    liss.save(OUTPUT_PATH / "ex2.gif", writer="pillow")
+    liss.save(OUTPUT_PATH / "ex2-frames-default" / "frame_%03d.tiff")
+
+    print("Example 3/4: SinusoidalParametricAnimation")
+    liss = SinusoidalParametricAnimation(100)
+    liss.setup(x_range=(0, 1), y_range=(-1, 1))
+    liss.save(OUTPUT_PATH / "ex3.gif", writer="ffmpeg")
+    liss.save(OUTPUT_PATH / "ex3-frames-default" / "frame_%03d.png")
+
+    print("Example 4/4: ThreeDsinusoidalParametricAnimation")
+    liss = ThreeDsinusoidalParametricAnimation(100)
+    liss.setup(x_range=(-1, 1), y_range=(-1, 1), z_range=(-1, 1))
+    liss.save("output/ex4-ffmpeg.mp4", writer="ffmpeg")
+    liss.save("output/ex4-imagemagick.mp4", writer="imagemagick")
+
+
+if __name__ == "__main__":
+
+    from pathlib import Path
+
+    print("## \n show some animations")
+    test_show_animations()
+
+    print("\n save some animations")
+    test_save_animations()

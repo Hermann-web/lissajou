@@ -9,6 +9,7 @@ Description:
 """
 
 from abc import ABCMeta, abstractmethod
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -34,14 +35,17 @@ class BaseAnimation(metaclass=ABCMeta):
         """
         pass  # Currently, there's no initialization required. Can be extended by subclasses.
 
-    def show(self, **kwargs):
+    def setup(self, **kwargs):
         """
-        Sets up the animation and displays it.
+        Sets up the animation with specified parameters.
 
-        Accepts various keyword arguments to customize animation parameters before display.
+        This method initializes the animation by configuring parameters, setting up the figure and axes,
+        and initializing the animation itself.
+
+        Keyword Args:
+            **kwargs: Arbitrary keyword arguments for animation parameters.
         """
-        self.__setup__(**kwargs)  # Perform initial setup with any provided parameters
-        plt.show()  # Display the animation
+        return self.__setup__(**kwargs)
 
     def __setup__(self, **kwargs):
         """
@@ -51,6 +55,8 @@ class BaseAnimation(metaclass=ABCMeta):
         Keyword Args:
             **kwargs: Arbitrary keyword arguments for animation parameters.
         """
+        if hasattr(self, "anim") and self.anim is not None:
+            return
         self._set_params(**kwargs)  # Set any provided parameters
         fig, self.ax = self.__set_axes__()  # Setup figure and axes
         self._before_all_iterations()  # Perform any setup before animation starts
@@ -63,6 +69,101 @@ class BaseAnimation(metaclass=ABCMeta):
             interval=self.speed,
             blit=True,
         )
+
+    def show(self, **kwargs):
+        """
+        Sets up the animation and displays it.
+
+        Accepts various keyword arguments to customize animation parameters before display.
+        """
+        self.__setup__(**kwargs)  # Perform initial setup with any provided parameters
+        plt.show()  # Display the animation
+
+    def save(self, file_path: Union[str, Path], **kwargs):
+        """
+        Saves the animation to a file based on the file extension.
+
+        Args:
+            file_path (str): The path where the animation will be saved.
+            **kwargs: Additional keyword arguments passed to the animation writer.
+
+        Supported file formats:
+            - Images: png, jpeg, jpg, tiff
+            - Animated Images: gif
+            - HTML: html, htm
+            - Video: mp4
+
+        For formats requiring external dependencies (e.g., ffmpeg), ensure the corresponding
+        dependencies are installed in the system.
+
+        If the specified format is unsupported, the function attempts to save the animation
+        using the specified format anyway.
+
+        Note: Some formats may require specific writers (e.g., 'pillow' for GIFs, 'ffmpeg' for videos).
+        If a writer is not explicitly provided, default writers are used based on the file extension.
+
+        Examples:
+            anim.save('animation.mp4')  # Save as MP4 video with default parameters.
+            anim.save('animation.gif', writer='pillow', fps=20)  # Save as GIF with custom parameters.
+        """
+        img_formats = ("png", "jpeg", "jpg", "tiff")
+        animated_image_formats = ("gif",)
+        video_formats = ("mp4",)
+        html_formats = ("html", "htm")
+        supported_formats = (
+            img_formats + animated_image_formats + video_formats + html_formats
+        )
+
+        frame_formats = img_formats
+
+        # Use pathlib to infer file format from the file extension
+        file_path = Path(file_path)
+        format = file_path.suffix[1:].lower()  # Remove the dot from the extension
+
+        # Ensure directory exists if saving frame formats
+        if format in frame_formats:
+            file_path.parent.mkdir(exist_ok=True)
+        else:
+            assert file_path.parent.exists()
+            file_path = file_path.absolute()
+        file_path = str(file_path)
+
+        # Perform initial setup with any provided parameters
+        self.__setup__()
+
+        # Save the animation based on the specified format
+        if format in img_formats:
+            # Save as image using imagemagick writer
+            self.anim.save(
+                file_path, writer=kwargs.pop("writer", "imagemagick"), **kwargs
+            )
+        elif format in animated_image_formats:
+            # Save as GIF using pillow writer
+            self.anim.save(
+                file_path,
+                writer=kwargs.pop("writer", "pillow"),
+                fps=kwargs.pop("fps", 30),
+                **kwargs,
+            )
+        elif format in video_formats:
+            # Save as video using ffmpeg writer
+            self.anim.save(
+                file_path,
+                writer=kwargs.pop("writer", "ffmpeg"),
+                fps=kwargs.pop("fps", 30),
+                **kwargs,
+            )
+        elif format in html_formats:
+            # Save as HTML using html writer
+            self.anim.save(file_path, writer=kwargs.pop("writer", "html"), **kwargs)
+        else:
+            # Unsupported format, attempt to save anyway
+            print(
+                f"Unsupported format={format}. Supported formats: {', '.join(supported_formats)}. Trying to save anyway"
+            )
+            self.anim.save(file_path, writer=kwargs.pop("writer"), **kwargs)
+
+        print(f"Saved animation to {file_path}")
 
     @abstractmethod
     def _set_params(self, max_frames: int = None, speed: float = None):
