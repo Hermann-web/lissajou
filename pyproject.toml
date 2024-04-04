@@ -9,7 +9,6 @@ readme = "README.md"
 maintainers = [
     "Hermann Agossou <agossouhermann7@gmail.com>"
 ]
-license = "MIT"
 homepage = "https://hermann-web.github.io/blog/projects/introducing-lissajou-for-animated-plots/"
 repository = "https://github.com/Hermann-web/lissajou"
 documentation = "https://github.com/Hermann-web/lissajou/blob/main/docs/index.md"
@@ -29,6 +28,7 @@ matplotlib = "^3.8.3"
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
 isort = "^5.13.2"
+pydeps = "^1.12.20"
 
 [tool.isort]
 profile = "black"

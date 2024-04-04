@@ -24,7 +24,7 @@ Example:
 
 import numpy as np
 
-from lissajou.anim import ParametricAnimation
+from .anim import ParametricAnimation
 
 
 class GenericLissajou(ParametricAnimation):
