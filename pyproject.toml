@@ -11,7 +11,7 @@ maintainers = [
 ]
 homepage = "https://hermann-web.github.io/blog/projects/introducing-lissajou-for-animated-plots/"
 repository = "https://github.com/Hermann-web/lissajou"
-documentation = "https://github.com/Hermann-web/lissajou/blob/master/docs/index.md"
+documentation = "https://lissajou.readthedocs.io"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers :: Science/Research :: Education",
