@@ -30,6 +30,11 @@ black = "^24.0.0"
 isort = "^5.0.0"
 pydeps = "^1.12.20"
 
+[tool.poetry.group.buildthedocs.dependencies]
+sphinx = "^7.0.0"
+sphinx-rtd-theme = "^2.0.0"
+m2r2 = "^0.3.3.post2"
+
 [tool.isort]
 profile = "black"
 
